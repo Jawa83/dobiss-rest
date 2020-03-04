@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
  * Created by wardjanssens on 09/03/2017.
  */
 @Slf4j
+@Deprecated
 public class Mood extends Toggle {
 
     public Mood(String name, int address) {

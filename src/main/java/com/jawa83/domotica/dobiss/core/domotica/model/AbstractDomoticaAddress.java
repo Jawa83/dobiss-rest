@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by wardjanssens on 22/02/2017.
+ * @deprecated being refactored
  */
 @Slf4j
+@Deprecated
 public abstract class AbstractDomoticaAddress {
 
     private String name = "";

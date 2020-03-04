@@ -2,7 +2,7 @@ package com.jawa83.domotica.dobiss.web.in;
 
 import com.jawa83.domotica.dobiss.core.domotica.Connection;
 import com.jawa83.domotica.dobiss.core.domotica.model.Group;
-import com.jawa83.domotica.dobiss.core.domotica.model.Toggle;
+import com.jawa83.domotica.dobiss.core.domotica.service.DobissService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +19,7 @@ import java.util.List;
 public class DobissController {
 
     private Connection connection;
+    private DobissService dobissService;
 
     @GetMapping(path = "/groups", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public List<Group> getGroups() {
@@ -26,23 +27,14 @@ public class DobissController {
     }
 
     /**
-     * Get the status of all the outputs of a certain group (across modules)
-     *
-     * @param groupId
-     */
-    @GetMapping(path = "/groups/{groupId}/status", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void getStatusOfGroup(@PathVariable int groupId) {
-        connection.getStatusOfGroup(connection.getGroups().get(groupId));
-    }
-
-    /**
      * Get the status of all the outputs of a certain module
      *
-     * @param moduleId
+     * @param moduleId Id of the Dobiss module
      */
-    @GetMapping(path = "/modules/{moduleId}/status", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/module/{moduleId}/status", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void getStatusOfModule(@PathVariable int moduleId) throws Exception {
-        connection.getStatusOfModule(moduleId);
+        dobissService.requestStatus(16, moduleId);
+//        connection.getStatusOfModule(moduleId);
     }
 
     @GetMapping(path = "/refresh", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -53,11 +45,11 @@ public class DobissController {
     /**
      * Change state of Dobiss output at a specific module + address
      *
-     * @param module
-     * @param address
+     * @param module Id of the Dobiss module
+     * @param address Address of the output on the module
      */
     @PostMapping(path = "/module/{module}/address/{address}")
-    public void updateAddress(@PathVariable int module, @PathVariable int address) {
-        connection.toggleOutput(new Toggle(null, address, module));
+    public void updateAddress(@PathVariable int module, @PathVariable int address) throws Exception {
+        dobissService.toggleOutput(module, address);
     }
 }

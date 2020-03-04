@@ -10,7 +10,6 @@ import com.jawa83.domotica.dobiss.core.domotica.utils.ConversionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -25,9 +24,12 @@ import java.util.List;
 
 /**
  * Create connection with Dobiss domotics Lan interface
+ *
+ * @deprecated To be replaced by DobissService and DobissClient
  */
 @Slf4j
 @Component
+@Deprecated
 public class Connection {
 
     private final static int DELAY_BEFORE_NEXT_ATTEMPT = 25;
@@ -82,7 +84,7 @@ public class Connection {
     }
 
     // Import all data in memory at once, avoid multiple tcp connections
-    @PostConstruct
+//    @PostConstruct
     public boolean importData(){
         boolean success = loadGroups();
         success &= loadOutputs();
@@ -95,6 +97,7 @@ public class Connection {
     public List<Group> getGroups() {
         if(groupList == null || groupList.size() == 0) {
             loadGroups();
+            loadOutputs();
             loadMoods();
             closeConnection();
         }
@@ -196,31 +199,6 @@ public class Connection {
         return true;
     }
 
-    public boolean toggleOutput(Toggle output){
-        try {
-            new Network().execute(output.getToggleRequest());
-            log.info("Toggle: " + output.getName());
-        } catch (Exception e){
-            e.printStackTrace();
-            return false;
-        } finally {
-            closeConnection();
-        }
-        return true;
-    }
-    
-    public boolean dimOutput(Dimmer output, int value){
-        try {
-            new Network().execute(output.getDimmerRequest(value));
-            log.info("Dimmer(" + value + "): " + output.getName());
-        } catch (Exception e){
-            e.printStackTrace();
-            return false;
-        } finally {
-            closeConnection();
-        }
-        return true;
-    }
 
     public byte[][] getStatusOfGroup(Group group){
         byte[][] receive = new byte[NUMBER_OF_MODULES][];
@@ -240,8 +218,7 @@ public class Connection {
             int index = 0;
             for (DobissInput input : STATUS) {
                 if (modulesInGroup.contains(input)) {
-                    byte[] rec = new Network().execute(input.getRequest(), ConversionUtils.intToBytes(input.getMaxLines()));
-                    byte[] result = rec;
+                    byte[] result = new Network().execute(input.getRequest(), ConversionUtils.intToBytes(input.getMaxLines()));
                     if (result != null) {
                         // trim unused addresses
                         int lastIndex = -1;
@@ -251,7 +228,7 @@ public class Connection {
                                 break;
                             }
                         }
-                        if (rec.length > 0) {
+                        if (result.length > 0) {
                             receive[index] = Arrays.copyOf(result, lastIndex);
                             log.info("Status of module " + index + ": " + ConversionUtils.bytesToHex(receive[index]));
                         }

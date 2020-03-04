@@ -4,8 +4,10 @@ import com.jawa83.domotica.dobiss.core.domotica.data.DobissTypes;
 
 /**
  * Created by wardjanssens on 28/02/2017.
+ *
+ * @deprecated being refactored
  */
-
+@Deprecated
 public class Dimmer extends Toggle {
 
     public Dimmer(String name, int address, int module) {

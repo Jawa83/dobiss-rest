@@ -5,8 +5,9 @@ import com.jawa83.domotica.dobiss.core.domotica.utils.ConversionUtils;
 
 /**
  * Created by wardjanssens on 27/02/2017.
+ * @deprecated being refactored
  */
-
+@Deprecated
 public class Toggle extends AbstractDomoticaAddress {
 
     private static final int TOGGLE_VALUE = 100;    // A Toggle object only knows 'on' or 'off'

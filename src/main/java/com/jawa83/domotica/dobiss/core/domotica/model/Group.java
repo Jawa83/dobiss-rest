@@ -4,8 +4,10 @@ import java.util.ArrayList;
 
 /**
  * Created by wardjanssens on 28/02/2017.
+ *
+ * @deprecated being refactored
  */
-
+@Deprecated
 public class Group {
 
     private int id;

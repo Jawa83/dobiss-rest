@@ -4,8 +4,10 @@ import com.jawa83.domotica.dobiss.core.domotica.utils.ConversionUtils;
 
 /**
  * Created by wardjanssens on 24/02/2017.
+ *
+ *
  */
-
+@Deprecated
 public enum DobissInput {
 
     FETCH_GROUPS     ("1020a0a000202020", 66),
