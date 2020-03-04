@@ -1,6 +1,7 @@
 package com.jawa83.domotica.dobiss.core.domotica.utils;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * Created by wardjanssens on 25/02/2017.
@@ -36,6 +37,14 @@ public class ConversionUtils {
 
     public static int bytesToInt(byte[] bytes) {
         return ByteBuffer.wrap(bytes).getInt();
+    }
+
+    public static byte[] trimBytes(byte[] bytes, byte trimByte) {
+        int index = bytes.length;
+        while (bytes[index - 1] == trimByte) {
+            index--;
+        }
+        return Arrays.copyOf(bytes, index);
     }
 
 }

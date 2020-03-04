@@ -1,10 +1,12 @@
 package com.jawa83.domotica.dobiss.web.in;
 
 import com.jawa83.domotica.dobiss.core.domotica.Connection;
+import com.jawa83.domotica.dobiss.core.domotica.model.DobissOutput;
 import com.jawa83.domotica.dobiss.core.domotica.model.Group;
 import com.jawa83.domotica.dobiss.core.domotica.service.DobissService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+
+import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 @RequestMapping(value = "/v1/dobiss")
@@ -31,10 +35,9 @@ public class DobissController {
      *
      * @param moduleId Id of the Dobiss module
      */
-    @GetMapping(path = "/module/{moduleId}/status", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void getStatusOfModule(@PathVariable int moduleId) throws Exception {
-        dobissService.requestStatus(16, moduleId);
-//        connection.getStatusOfModule(moduleId);
+    @GetMapping(path = "/module/{moduleId}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<DobissOutput>> getStatusOfModule(@PathVariable int moduleId) throws Exception {
+        return ok().body(dobissService.requestModuleStatusAsObject(moduleId));
     }
 
     @GetMapping(path = "/refresh", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)

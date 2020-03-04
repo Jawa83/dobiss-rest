@@ -1,5 +1,9 @@
 package com.jawa83.domotica.dobiss.core.domotica.service;
 
+import com.jawa83.domotica.dobiss.core.domotica.model.DobissOutput;
+
+import java.util.List;
+
 public interface DobissService {
 
     /**
@@ -17,6 +21,7 @@ public interface DobissService {
      */
     void dimOutput(int module, int address, int value) throws Exception;
 
-    String requestStatus(int type, int module) throws Exception;
+    String requestModuleStatusAsHex(int module) throws Exception;
 
+    List<DobissOutput> requestModuleStatusAsObject(int module) throws Exception;
 }
