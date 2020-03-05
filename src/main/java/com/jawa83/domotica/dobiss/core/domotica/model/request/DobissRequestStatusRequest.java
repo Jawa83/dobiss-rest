@@ -54,6 +54,16 @@ public class DobissRequestStatusRequest implements DobissRequest<List<DobissOutp
         return resultList;
     }
 
+    @Override
+    public String executeHex() throws Exception {
+        byte[] result = this.dobissClient.sendRequest(this);
+        if (result == null || result.length == 0) {
+            return null;
+        }
+        result = Arrays.copyOf(result, MAX_OUTPUTS_PER_MODULE);
+        return ConversionUtils.bytesToHex(ConversionUtils.trimBytes(result, EMPTY_BYTE));
+    }
+
     public enum ModuleType {
         RELAY((byte) 8),
         DIMMER((byte) 16),

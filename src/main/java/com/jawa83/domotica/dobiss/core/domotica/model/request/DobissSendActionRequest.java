@@ -97,6 +97,12 @@ public class DobissSendActionRequest implements DobissRequest<Void> {
         return null;
     }
 
+    @Override
+    public String executeHex() throws Exception {
+        this.dobissClient.sendRequest(this);
+        return null;
+    }
+
     public enum ActionType {
         OFF((byte) 0),
         ON((byte) 1),

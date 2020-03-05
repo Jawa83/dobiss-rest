@@ -18,6 +18,8 @@ import java.util.Map;
 @Slf4j
 public class DobissServiceImpl implements DobissService {
 
+    private final static int HEX_OUTPUT_STATUS_LENGTH = 2;
+
     private Map<Integer, ModuleType> moduleTypeMap = new HashMap<>();
 
     private DobissClient dobissClient;
@@ -57,10 +59,7 @@ public class DobissServiceImpl implements DobissService {
 
     @Override
     public String requestModuleStatusAsHex(int module) throws Exception {
-        // TODO
-        return "";
-//        byte[] result = requestStatus(module);
-//        return result == null ? null : ConversionUtils.bytesToHex(ConversionUtils.trimBytes(result, EMPTY_BYTE));
+        return requestStatusHex(module);
     }
 
     @Override
@@ -70,13 +69,12 @@ public class DobissServiceImpl implements DobissService {
 
     @Override
     public String requestOutputStatusAsHex(int module, int address) throws Exception {
-        // TODO
-        return "";
-//        byte[] result = requestStatus(module);
-//        if (result == null || result.length < address) {
-//            return null;
-//        }
-//        return ConversionUtils.byteToHex(result[address]);
+        String result = requestStatusHex(module);
+        int offset = address * HEX_OUTPUT_STATUS_LENGTH;
+        if (result == null || result.length() < offset + HEX_OUTPUT_STATUS_LENGTH) {
+            return null;
+        }
+        return result.substring(offset, offset + HEX_OUTPUT_STATUS_LENGTH);
     }
 
     @Override
@@ -110,10 +108,10 @@ public class DobissServiceImpl implements DobissService {
         if (moduleTypeMap.containsKey(module)) {
             // Use known module type
             return DobissRequestStatusRequest.builder()
-                        .dobissClient(dobissClient)
-                        .type(moduleTypeMap.get(module))
-                        .module(module)
-                        .build().execute();
+                    .dobissClient(dobissClient)
+                    .type(moduleTypeMap.get(module))
+                    .module(module)
+                    .build().execute();
         }
         // Module type not yet known, iteration over possibilities and store when found
         for (ModuleType type : ModuleType.values()) {
@@ -122,6 +120,30 @@ public class DobissServiceImpl implements DobissService {
                     .type(type)
                     .module(module)
                     .build().execute();
+            if (result != null) {
+                moduleTypeMap.put(module, type);
+                return result;
+            }
+        }
+        return null;
+    }
+
+    private String requestStatusHex(int module) throws Exception {
+        if (moduleTypeMap.containsKey(module)) {
+            // Use known module type
+            return DobissRequestStatusRequest.builder()
+                    .dobissClient(dobissClient)
+                    .type(moduleTypeMap.get(module))
+                    .module(module)
+                    .build().executeHex();
+        }
+        // Module type not yet known, iteration over possibilities and store when found
+        for (ModuleType type : ModuleType.values()) {
+            String result = DobissRequestStatusRequest.builder()
+                    .dobissClient(dobissClient)
+                    .type(type)
+                    .module(module)
+                    .build().executeHex();
             if (result != null) {
                 moduleTypeMap.put(module, type);
                 return result;

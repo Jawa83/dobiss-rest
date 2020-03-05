@@ -15,4 +15,6 @@ public interface DobissRequest<O> {
 
     O execute() throws Exception;
 
+    String executeHex() throws Exception;
+
 }

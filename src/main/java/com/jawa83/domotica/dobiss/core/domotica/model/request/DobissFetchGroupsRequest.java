@@ -26,4 +26,9 @@ public class DobissFetchGroupsRequest implements DobissRequest<String> {
         // TODO return object
         return ConversionUtils.bytesToHex(this.dobissClient.sendRequest(this));
     }
+
+    @Override
+    public String executeHex() throws Exception {
+        return ConversionUtils.bytesToHex(this.dobissClient.sendRequest(this));
+    }
 }

@@ -73,8 +73,13 @@ public class DobissController {
         return ok().body(dobissService.requestOutputStatusAsHex(module, address));
     }
 
+    /**
+     * Get the statuses of all modules
+     *
+     * @return A List of modules with lists of all outputs including their actual status
+     */
     @GetMapping(path = "/module", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<DobissModule>> refreshStatuses() throws Exception {
+    public ResponseEntity<List<DobissModule>> getAllStatuses() throws Exception {
         return ok().body(dobissService.requestAllStatus());
     }
 
