@@ -1,4 +1,4 @@
-package com.jawa83.domotica.dobiss.core.domotica.model;
+package com.jawa83.domotica.dobiss.core.domotica.model.resource;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

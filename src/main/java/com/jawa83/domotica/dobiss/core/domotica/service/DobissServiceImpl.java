@@ -1,16 +1,15 @@
 package com.jawa83.domotica.dobiss.core.domotica.service;
 
 import com.jawa83.domotica.dobiss.core.domotica.client.DobissClient;
-import com.jawa83.domotica.dobiss.core.domotica.model.DobissOutput;
-import com.jawa83.domotica.dobiss.core.domotica.model.DobissRequestStatusRequest;
-import com.jawa83.domotica.dobiss.core.domotica.model.DobissRequestStatusRequest.ModuleType;
-import com.jawa83.domotica.dobiss.core.domotica.model.DobissSendActionRequest;
-import com.jawa83.domotica.dobiss.core.domotica.utils.ConversionUtils;
+import com.jawa83.domotica.dobiss.core.domotica.model.request.DobissRequestStatusRequest;
+import com.jawa83.domotica.dobiss.core.domotica.model.request.DobissRequestStatusRequest.ModuleType;
+import com.jawa83.domotica.dobiss.core.domotica.model.request.DobissSendActionRequest;
+import com.jawa83.domotica.dobiss.core.domotica.model.resource.DobissModule;
+import com.jawa83.domotica.dobiss.core.domotica.model.resource.DobissOutput;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,9 +17,6 @@ import java.util.Map;
 @Service
 @Slf4j
 public class DobissServiceImpl implements DobissService {
-
-    private final static int MAX_OUTPUTS_PER_MODULE = 8;
-    private final static byte EMPTY_BYTE = (byte) -1;
 
     private Map<Integer, ModuleType> moduleTypeMap = new HashMap<>();
 
@@ -36,10 +32,11 @@ public class DobissServiceImpl implements DobissService {
      */
     @Override
     public void toggleOutput(int module, int address) throws Exception {
-        dobissClient.sendRequest(DobissSendActionRequest.builder()
+        DobissSendActionRequest.builder()
+                .dobissClient(dobissClient)
                 .module(module)
                 .address(address)
-                .build().getRequestBytes());
+                .build().execute();
     }
 
     /**
@@ -49,55 +46,85 @@ public class DobissServiceImpl implements DobissService {
      */
     @Override
     public void dimOutput(int module, int address, int value) throws Exception {
-        dobissClient.sendRequest(DobissSendActionRequest.builder()
+        DobissSendActionRequest.builder()
+                .dobissClient(dobissClient)
                 .module(module)
                 .address(address)
                 .actionType(DobissSendActionRequest.ActionType.ON)
                 .value(value)
-                .build().getRequestBytes());
+                .build().execute();
     }
 
     @Override
     public String requestModuleStatusAsHex(int module) throws Exception {
-        byte[] result = requestStatus(module);
-        return result == null ? null : ConversionUtils.bytesToHex(ConversionUtils.trimBytes(result, EMPTY_BYTE));
+        // TODO
+        return "";
+//        byte[] result = requestStatus(module);
+//        return result == null ? null : ConversionUtils.bytesToHex(ConversionUtils.trimBytes(result, EMPTY_BYTE));
     }
 
     @Override
     public List<DobissOutput> requestModuleStatusAsObject(int module) throws Exception {
-        byte[] result = requestStatus(module);
-        if (result == null) {
-            return null;
-        }
-        List<DobissOutput> resultList = new ArrayList<>();
-        for (int i = 0; i < result.length; i++) {
-            if (result[i] != EMPTY_BYTE) {
-                resultList.add(new DobissOutput(i, result[i]));
-            }
-        }
-        return resultList;
+        return requestStatus(module);
     }
 
-    private byte[] requestStatus(int module) throws Exception {
-        byte[] result;
+    @Override
+    public String requestOutputStatusAsHex(int module, int address) throws Exception {
+        // TODO
+        return "";
+//        byte[] result = requestStatus(module);
+//        if (result == null || result.length < address) {
+//            return null;
+//        }
+//        return ConversionUtils.byteToHex(result[address]);
+    }
+
+    @Override
+    public DobissOutput requestOutputStatusAsObject(int module, int address) throws Exception {
+        List<DobissOutput> moduleStatuses = requestStatus(module);
+        if (moduleStatuses == null || moduleStatuses.size() == 0 ) {
+            return null;
+        }
+        return moduleStatuses.get(address);
+    }
+
+    @Override
+    public List<DobissModule> requestAllStatus() throws Exception {
+        List<DobissModule> modules = new ArrayList<>();
+
+        dobissClient.setKeepConnectionOpen(true);
+
+        int index = 1;
+        List<DobissOutput> outputs = requestModuleStatusAsObject(index);
+        while (outputs != null) {
+            modules.add(new DobissModule(index, outputs));
+            outputs = requestModuleStatusAsObject(++index);
+        }
+
+        dobissClient.closeConnection();
+
+        return modules;
+    }
+
+    private List<DobissOutput> requestStatus(int module) throws Exception {
         if (moduleTypeMap.containsKey(module)) {
             // Use known module type
-            return Arrays.copyOf(
-                    dobissClient.sendRequest(DobissRequestStatusRequest.builder()
+            return DobissRequestStatusRequest.builder()
+                        .dobissClient(dobissClient)
                         .type(moduleTypeMap.get(module))
                         .module(module)
-                        .build().getRequestBytes()),
-                    MAX_OUTPUTS_PER_MODULE);
+                        .build().execute();
         }
         // Module type not yet known, iteration over possibilities and store when found
         for (ModuleType type : ModuleType.values()) {
-            result = dobissClient.sendRequest(DobissRequestStatusRequest.builder()
+            List<DobissOutput> result = DobissRequestStatusRequest.builder()
+                    .dobissClient(dobissClient)
                     .type(type)
                     .module(module)
-                    .build().getRequestBytes());
-            if (result.length > 0) {
+                    .build().execute();
+            if (result != null) {
                 moduleTypeMap.put(module, type);
-                return Arrays.copyOf(result, MAX_OUTPUTS_PER_MODULE);
+                return result;
             }
         }
         return null;

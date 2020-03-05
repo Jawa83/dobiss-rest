@@ -1,10 +1,11 @@
-package com.jawa83.domotica.dobiss.core.domotica.model;
+package com.jawa83.domotica.dobiss.core.domotica.model.request;
 
+import com.jawa83.domotica.dobiss.core.domotica.client.DobissClient;
 import com.jawa83.domotica.dobiss.core.domotica.utils.ConversionUtils;
 import lombok.Builder;
 
 @Builder
-public class DobissSendActionRequest implements DobissRequest {
+public class DobissSendActionRequest implements DobissRequest<Void> {
 
     private final static byte[] BASE_SEND_ACTION_REQUEST = ConversionUtils.hexToBytes("af02ff000000080108ffffffffffffaf0000000000000000");
 
@@ -26,6 +27,8 @@ public class DobissSendActionRequest implements DobissRequest {
     private final static int INDEX_VALUE = 21;
     private final static int INDEX_SOFT_DIM = 22;
     private final static int INDEX_COND = 23;
+
+    private DobissClient dobissClient;
 
     /**
      * Module number where the output is on
@@ -68,11 +71,6 @@ public class DobissSendActionRequest implements DobissRequest {
     private Integer cond;
 
     @Override
-    public String getRequestString() {
-        return ConversionUtils.bytesToHex(getRequestBytes());
-    }
-
-    @Override
     public byte[] getRequestBytes() {
         byte[] byteArray = BASE_SEND_ACTION_REQUEST;
 
@@ -86,6 +84,17 @@ public class DobissSendActionRequest implements DobissRequest {
         byteArray[INDEX_COND] = value == null ? DEFAULT_COND : value.byteValue();
 
         return byteArray;
+    }
+
+    @Override
+    public int getMaxOutputLines() {
+        return 2;
+    }
+
+    @Override
+    public Void execute() throws Exception {
+        this.dobissClient.sendRequest(this);
+        return null;
     }
 
     public enum ActionType {

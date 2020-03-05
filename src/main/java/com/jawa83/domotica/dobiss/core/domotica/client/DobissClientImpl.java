@@ -1,11 +1,13 @@
 package com.jawa83.domotica.dobiss.core.domotica.client;
 
+import com.jawa83.domotica.dobiss.core.domotica.model.request.DobissRequest;
 import com.jawa83.domotica.dobiss.core.domotica.utils.ConversionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -14,7 +16,6 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 
-// TODO cleanup
 @Slf4j
 @Component
 public class DobissClientImpl implements DobissClient {
@@ -29,12 +30,25 @@ public class DobissClientImpl implements DobissClient {
     private final static int port = 1001;
 
     private Socket socket;
+    private boolean keepConnectionOpen = false;
 
     @Override
-    public byte[] sendRequest(byte[]... params) throws Exception {
-        try {
-            int maxLines = params.length > 1 ? ConversionUtils.bytesToInt(params[1]) : DEFAULT_MAX_LINES;
+    public byte[] sendRequest(DobissRequest<?> request) throws Exception {
+        if (request.getMaxOutputLines() == 0) {
+            return sendRequest(request.getRequestBytes());
+        }
+        return sendRequest(request.getRequestBytes(), request.getMaxOutputLines());
+    }
 
+    @Override
+    public byte[] sendRequest(byte[] params) throws Exception {
+        return sendRequest(params, DEFAULT_MAX_LINES);
+    }
+
+    // TODO cleanup
+    @Override
+    public byte[] sendRequest(byte[] params, int maxLines) throws Exception {
+        try {
             InetAddress address = InetAddress.getByName(ip);
 
             if (socket == null || socket.isClosed() || !socket.isConnected()) {
@@ -45,8 +59,8 @@ public class DobissClientImpl implements DobissClient {
 
             OutputStream out = socket.getOutputStream();
             DataOutputStream dos = new DataOutputStream(out);
-            dos.write(params[0]);
-            log.debug("Socket Request: " + ConversionUtils.bytesToHex(params[0]));
+            dos.write(params);
+            log.debug("Socket Request: " + ConversionUtils.bytesToHex(params));
 
             InputStream in = socket.getInputStream();
             DataInputStream dis = new DataInputStream(in);
@@ -77,22 +91,34 @@ public class DobissClientImpl implements DobissClient {
             }
 
             if (count == 0) {
-                log.warn("Connection: No response for request " + ConversionUtils.bytesToHex(params[0]));
+                log.warn("Connection: No response for request " + ConversionUtils.bytesToHex(params));
                 // TODO make custom Exception class
-                throw new Exception("No response for request " + ConversionUtils.bytesToHex(params[0]));
+                throw new Exception("No response for request " + ConversionUtils.bytesToHex(params));
             }
             return Arrays.copyOfRange(data, 32, count * 16);
 
         } catch (SocketTimeoutException e) {
-            log.warn("Connection: Timeout for request " + ConversionUtils.bytesToHex(params[0]));
+            log.warn("Connection: Timeout for request " + ConversionUtils.bytesToHex(params));
             throw e;
         }catch (Exception e) {
             log.error("Connection error: ", e);
             throw e;
         } finally {
-            if (socket.isConnected()) {
+            if (socket != null && socket.isConnected() && !this.keepConnectionOpen) {
                 socket.close();
             }
+        }
+    }
+
+    @Override
+    public void setKeepConnectionOpen(boolean keepOpen) {
+        this.keepConnectionOpen = keepOpen;
+    }
+
+    @Override
+    public void closeConnection() throws IOException {
+        if (socket.isConnected()) {
+            socket.close();
         }
     }
 }

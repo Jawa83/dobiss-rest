@@ -1,8 +1,7 @@
 package com.jawa83.domotica.dobiss.web.in;
 
-import com.jawa83.domotica.dobiss.core.domotica.Connection;
-import com.jawa83.domotica.dobiss.core.domotica.model.DobissOutput;
-import com.jawa83.domotica.dobiss.core.domotica.model.Group;
+import com.jawa83.domotica.dobiss.core.domotica.model.resource.DobissModule;
+import com.jawa83.domotica.dobiss.core.domotica.model.resource.DobissOutput;
 import com.jawa83.domotica.dobiss.core.domotica.service.DobissService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
@@ -17,18 +16,22 @@ import java.util.List;
 
 import static org.springframework.http.ResponseEntity.ok;
 
+/**
+ * Controller for the main Dobiss output interaction REST endpoints
+ *
+ * Contains endpoints to:
+ *  - trigger changes on outputs
+ *  - fetch the status of outputs
+ *
+ * @author jawa83
+ * @since 5/3/2020
+ */
 @RestController
 @RequestMapping(value = "/v1/dobiss")
 @AllArgsConstructor
 public class DobissController {
 
-    private Connection connection;
     private DobissService dobissService;
-
-    @GetMapping(path = "/groups", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public List<Group> getGroups() {
-        return connection.getGroups();
-    }
 
     /**
      * Get the status of all the outputs of a certain module
@@ -40,9 +43,39 @@ public class DobissController {
         return ok().body(dobissService.requestModuleStatusAsObject(moduleId));
     }
 
-    @GetMapping(path = "/refresh", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void refreshStatuses() throws Exception {
-        connection.getStatusOfAllModules();
+    /**
+     * Get the status of all the outputs of a certain module in hex string format
+     *
+     * @param moduleId Id of the Dobiss module
+     */
+    @GetMapping(path = "/module/{moduleId}/hex", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> getStatusOfModuleAsHex(@PathVariable int moduleId) throws Exception {
+        return ok().body(dobissService.requestModuleStatusAsHex(moduleId));
+    }
+
+    /**
+     * Get the status of a specific output
+     *
+     * @param module Id of the Dobiss module
+     */
+    @GetMapping(path = "/module/{module}/address/{address}")
+    public ResponseEntity<DobissOutput> getStatusOfOutput(@PathVariable int module, @PathVariable int address) throws Exception {
+        return ok().body(dobissService.requestOutputStatusAsObject(module, address));
+    }
+
+    /**
+     * Get the status of a specific output in hex string format
+     *
+     * @param module Id of the Dobiss module
+     */
+    @GetMapping(path = "/module/{module}/address/{address}/hex")
+    public ResponseEntity<String> getStatusOfOutputAsHex(@PathVariable int module, @PathVariable int address) throws Exception {
+        return ok().body(dobissService.requestOutputStatusAsHex(module, address));
+    }
+
+    @GetMapping(path = "/module", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<DobissModule>> refreshStatuses() throws Exception {
+        return ok().body(dobissService.requestAllStatus());
     }
 
     /**
