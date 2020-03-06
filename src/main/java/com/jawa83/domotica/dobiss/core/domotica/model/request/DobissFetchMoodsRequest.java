@@ -9,18 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Builder
-public class DobissFetchGroupsRequest implements DobissRequest<List<DobissGroupData>> {
+public class DobissFetchMoodsRequest implements DobissRequest<List<DobissGroupData>> {
 
-    private final static int GROUP_NAME_LENGTH = 32;
+    private final static int MOODS_NAME_LENGTH = 32;
 
     private DobissClient dobissClient;
 
     // TODO Find dobiss documentation. Is this always the same request or are there dynamic values?
-    private final static String FETCH_GROUPS_REQUEST = "af1020a0a000202020ffffffffffffaf";
+    private final static String FETCH_MOODS_REQUEST = "af1020a0c000204020ffffffffffffaf";
 
     @Override
     public byte[] getRequestBytes() {
-        return ConversionUtils.hexToBytes(FETCH_GROUPS_REQUEST);
+        return ConversionUtils.hexToBytes(FETCH_MOODS_REQUEST);
     }
 
     @Override
@@ -29,13 +29,13 @@ public class DobissFetchGroupsRequest implements DobissRequest<List<DobissGroupD
     }
 
     public List<DobissGroupData> execute() throws Exception {
-        String groupsString = new String(this.dobissClient.sendRequest(this));
+        String moodsString = new String(this.dobissClient.sendRequest(this));
         List<DobissGroupData> groups = new ArrayList<>();
 
         // Names of the groups are returned in one long string
         // Each name is assigned 32 characters (appended with spaces)
-        for(int i = 0; i < groupsString.length() / GROUP_NAME_LENGTH; i++){
-            groups.add(new DobissGroupData(i, groupsString.substring(i * GROUP_NAME_LENGTH, (i+1) * GROUP_NAME_LENGTH).trim()));
+        for(int i = 0; i < moodsString.length() / MOODS_NAME_LENGTH; i++){
+            groups.add(new DobissGroupData(i, moodsString.substring(i * MOODS_NAME_LENGTH, (i+1) * MOODS_NAME_LENGTH).trim()));
         }
 
         return groups;

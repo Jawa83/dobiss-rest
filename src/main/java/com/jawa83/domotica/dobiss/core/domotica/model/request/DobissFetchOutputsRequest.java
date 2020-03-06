@@ -9,18 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Builder
-public class DobissFetchGroupsRequest implements DobissRequest<List<DobissGroupData>> {
+public class DobissFetchOutputsRequest implements DobissRequest<List<DobissGroupData>> {
+
+    // TODO make dynamic
+    private final static String TEST_STRING = "af1008010100200c20ffffffffffffaf";
 
     private final static int GROUP_NAME_LENGTH = 32;
 
     private DobissClient dobissClient;
 
-    // TODO Find dobiss documentation. Is this always the same request or are there dynamic values?
-    private final static String FETCH_GROUPS_REQUEST = "af1020a0a000202020ffffffffffffaf";
+    private int moduleId;
 
     @Override
     public byte[] getRequestBytes() {
-        return ConversionUtils.hexToBytes(FETCH_GROUPS_REQUEST);
+        return ConversionUtils.hexToBytes(TEST_STRING);
     }
 
     @Override
