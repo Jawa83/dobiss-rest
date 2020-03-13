@@ -27,16 +27,32 @@ public class DobissDataController {
 
     private DobissDataService dobissDataService;
 
+    /**
+     * Fetches the list of groups for all dobiss modules
+     *
+     * @return List of groups
+     */
     @GetMapping(path = "/groups", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<DobissGroupData>> getGroups() throws Exception {
         return ok().body(dobissDataService.fetchGroupsData());
     }
 
+    /**
+     * Fetches the list of moods
+     *
+     * @return List of moods
+     */
     @GetMapping(path = "/moods", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<DobissGroupData>> getMoods() throws Exception {
         return ok().body(dobissDataService.fetchMoodsData());
     }
 
+    /**
+     * Fetches the list of outputs for a specific module
+     *
+     * @param moduleId Id of the module for which to fetch the outputs
+     * @return List of outputs for the specified module
+     */
     @GetMapping(path = "/modules/{moduleId}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<DobissGroupData>> getOutput(@PathVariable int moduleId) throws Exception {
         return ok().body(dobissDataService.fetchOutputsData(moduleId));
