@@ -1,6 +1,5 @@
 package com.jawa83.domotica.dobiss.core.domotica.utils;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -35,14 +34,6 @@ public class ConversionUtils {
                     + Character.digit(s.charAt(i+1), 16));
         }
         return data;
-    }
-
-    public static byte[] intToBytes(int value) {
-        return  ByteBuffer.allocate(4).putInt(value).array();
-    }
-
-    public static int bytesToInt(byte[] bytes) {
-        return ByteBuffer.wrap(bytes).getInt();
     }
 
     public static byte[] trimBytes(byte[] bytes, byte trimByte) {

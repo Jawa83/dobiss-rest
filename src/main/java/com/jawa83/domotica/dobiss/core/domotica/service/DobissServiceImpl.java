@@ -2,8 +2,8 @@ package com.jawa83.domotica.dobiss.core.domotica.service;
 
 import com.jawa83.domotica.dobiss.core.domotica.client.DobissClient;
 import com.jawa83.domotica.dobiss.core.domotica.model.request.DobissRequestStatusRequest;
-import com.jawa83.domotica.dobiss.core.domotica.model.request.DobissRequestStatusRequest.ModuleType;
 import com.jawa83.domotica.dobiss.core.domotica.model.request.DobissSendActionRequest;
+import com.jawa83.domotica.dobiss.core.domotica.model.request.ModuleType;
 import com.jawa83.domotica.dobiss.core.domotica.model.resource.DobissModule;
 import com.jawa83.domotica.dobiss.core.domotica.model.resource.DobissOutput;
 import lombok.extern.slf4j.Slf4j;

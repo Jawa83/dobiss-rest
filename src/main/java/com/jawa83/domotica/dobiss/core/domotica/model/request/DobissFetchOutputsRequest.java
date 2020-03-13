@@ -11,33 +11,41 @@ import java.util.List;
 @Builder
 public class DobissFetchOutputsRequest implements DobissRequest<List<DobissGroupData>> {
 
-    // TODO make dynamic
-    private final static String TEST_STRING = "af1008010100200c20ffffffffffffaf";
+    private final static byte[] BASE_FETCH_OUTPUTS_REQUEST = ConversionUtils.hexToBytes("af10ffff0100200c20ffffffffffffaf");
 
-    private final static int GROUP_NAME_LENGTH = 32;
+    private final static int INDEX_TYPE = 2;
+    private final static int INDEX_MODULE = 3;
+
+    private final static int OUTPUT_NAME_LENGTH = 32;
 
     private DobissClient dobissClient;
-
-    private int moduleId;
+    private ModuleType type;
+    private int module;
 
     @Override
     public byte[] getRequestBytes() {
-        return ConversionUtils.hexToBytes(TEST_STRING);
+        byte[] byteArray = BASE_FETCH_OUTPUTS_REQUEST;
+
+        byteArray[INDEX_TYPE] = type.getValue();
+        byteArray[INDEX_MODULE] = (byte) module;
+
+        return byteArray;
     }
 
     @Override
     public int getMaxOutputLines() {
-        return 0;
+        return 26;
     }
 
     public List<DobissGroupData> execute() throws Exception {
+        // TODO trim empty bytes and don't add group when resulting name is empty
         String groupsString = new String(this.dobissClient.sendRequest(this));
         List<DobissGroupData> groups = new ArrayList<>();
 
         // Names of the groups are returned in one long string
         // Each name is assigned 32 characters (appended with spaces)
-        for(int i = 0; i < groupsString.length() / GROUP_NAME_LENGTH; i++){
-            groups.add(new DobissGroupData(i, groupsString.substring(i * GROUP_NAME_LENGTH, (i+1) * GROUP_NAME_LENGTH).trim()));
+        for(int i = 0; i < groupsString.length() / OUTPUT_NAME_LENGTH; i++){
+            groups.add(new DobissGroupData(i, groupsString.substring(i * OUTPUT_NAME_LENGTH, (i+1) * OUTPUT_NAME_LENGTH).trim()));
         }
 
         return groups;
