@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "dobiss.ip",
+      "type": "java.lang.String",
+      "description": "Ip address of the dobiss modem."
+    },
+    {
+      "name": "dobiss.port",
+      "type": "java.lang.String",
+      "description": "Port of the dobiss modem."
+    }
+  ]
+}

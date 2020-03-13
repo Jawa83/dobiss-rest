@@ -3,6 +3,7 @@ package com.jawa83.domotica.dobiss.core.domotica.client;
 import com.jawa83.domotica.dobiss.core.domotica.model.request.DobissRequest;
 import com.jawa83.domotica.dobiss.core.domotica.utils.ConversionUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.DataInputStream;
@@ -25,9 +26,11 @@ public class DobissClientImpl implements DobissClient {
     private final static int DEFAULT_MAX_LINES = 100;
     private final static int SOCKET_TIMEOUT = 3000;
 
-    // TODO load ip and port from preferences
-    private final static String ip = "192.168.0.197";
-    private final static int port = 1001;
+    @Value( "${dobiss.ip}" )
+    private String ip;
+
+    @Value( "${dobiss.port}" )
+    private int port;
 
     private Socket socket;
     private boolean keepConnectionOpen = false;
