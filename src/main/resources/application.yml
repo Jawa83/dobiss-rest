@@ -2,5 +2,5 @@ logging.level.root: DEBUG
 server.port: 9090
 
 dobiss:
-  ip: 192.168.0.197
-  port: 1001
+  ip: ${DOBISS_IP}
+  port: ${DOBISS_PORT}
