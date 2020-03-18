@@ -85,12 +85,14 @@ public class DobissController {
 
     /**
      * Change state of Dobiss output at a specific module + address
-     *
-     * @param module Id of the Dobiss module
+     *  @param module Id of the Dobiss module
      * @param address Address of the output on the module
+     * @return
      */
     @PostMapping(path = "/module/{module}/address/{address}")
-    public void updateAddress(@PathVariable int module, @PathVariable int address) throws Exception {
+    public ResponseEntity<DobissOutput> updateAddress(@PathVariable int module, @PathVariable int address) throws Exception {
         dobissService.toggleOutput(module, address);
+        // TODO set small timeout
+        return ok().body(dobissService.requestOutputStatusAsObject(module, address));
     }
 }
