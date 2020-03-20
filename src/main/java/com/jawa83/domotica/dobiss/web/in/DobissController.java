@@ -31,6 +31,9 @@ import static org.springframework.http.ResponseEntity.ok;
 @AllArgsConstructor
 public class DobissController {
 
+    // Wait 2 seconds after updating a status before checking the updated status
+    private static final int WAIT_FOR_CHANGE = 2000;
+
     private DobissService dobissService;
 
     /**
@@ -87,12 +90,12 @@ public class DobissController {
      * Change state of Dobiss output at a specific module + address
      *  @param module Id of the Dobiss module
      * @param address Address of the output on the module
-     * @return
+     * @return Value of the updated address output
      */
     @PostMapping(path = "/module/{module}/address/{address}")
     public ResponseEntity<DobissOutput> updateAddress(@PathVariable int module, @PathVariable int address) throws Exception {
         dobissService.toggleOutput(module, address);
-        // TODO set small timeout
+        Thread.sleep(WAIT_FOR_CHANGE);
         return ok().body(dobissService.requestOutputStatusAsObject(module, address));
     }
 }
