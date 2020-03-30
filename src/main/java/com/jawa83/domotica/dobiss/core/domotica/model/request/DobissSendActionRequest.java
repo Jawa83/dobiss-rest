@@ -80,8 +80,8 @@ public class DobissSendActionRequest implements DobissRequest<Void> {
         byteArray[INDEX_ACTION_TYPE] = actionType == null ? DEFAULT_ACTION_TYPE.getValue() : actionType.getValue();
         byteArray[INDEX_DELAY_ON] = delayOn == null ? DEFAULT_DELAY_ON : delayOn.byteValue();
         byteArray[INDEX_VALUE] = value == null ? DEFAULT_ACTION_VALUE : value.byteValue();
-        byteArray[INDEX_SOFT_DIM] = value == null ? DEFAULT_SOFT_DIM : value.byteValue();
-        byteArray[INDEX_COND] = value == null ? DEFAULT_COND : value.byteValue();
+        byteArray[INDEX_SOFT_DIM] = softDim == null ? DEFAULT_SOFT_DIM : softDim.byteValue();
+        byteArray[INDEX_COND] = cond == null ? DEFAULT_COND : cond.byteValue();
 
         return byteArray;
     }
