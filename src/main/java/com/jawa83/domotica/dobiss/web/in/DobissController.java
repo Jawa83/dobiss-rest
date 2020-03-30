@@ -2,14 +2,18 @@ package com.jawa83.domotica.dobiss.web.in;
 
 import com.jawa83.domotica.dobiss.core.domotica.model.resource.DobissModule;
 import com.jawa83.domotica.dobiss.core.domotica.model.resource.DobissOutput;
+import com.jawa83.domotica.dobiss.core.domotica.model.resource.DobissOutputValue;
 import com.jawa83.domotica.dobiss.core.domotica.service.DobissService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -30,9 +34,6 @@ import static org.springframework.http.ResponseEntity.ok;
 @RequestMapping(value = "/v1/dobiss")
 @AllArgsConstructor
 public class DobissController {
-
-    // Wait 2 seconds after updating a status before checking the updated status
-    private static final int WAIT_FOR_CHANGE = 2000;
 
     private DobissService dobissService;
 
@@ -88,14 +89,16 @@ public class DobissController {
 
     /**
      * Change state of Dobiss output at a specific module + address
-     *  @param module Id of the Dobiss module
+     * @param module Id of the Dobiss module
      * @param address Address of the output on the module
-     * @return Value of the updated address output
      */
     @PostMapping(path = "/module/{module}/address/{address}")
-    public ResponseEntity<DobissOutput> updateAddress(@PathVariable int module, @PathVariable int address) throws Exception {
-        dobissService.toggleOutput(module, address);
-        Thread.sleep(WAIT_FOR_CHANGE);
-        return ok().body(dobissService.requestOutputStatusAsObject(module, address));
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void updateAddress(@PathVariable int module, @PathVariable int address, @RequestBody(required = false) DobissOutputValue dobissOutputValue) throws Exception {
+        if (dobissOutputValue != null) {
+            dobissService.dimOutput(module, address, dobissOutputValue.getValue());
+        } else {
+            dobissService.toggleOutput(module, address);
+        }
     }
 }
