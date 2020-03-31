@@ -16,6 +16,13 @@ class ConversionUtilsTest {
     }
 
     @Test
+    public void test2() {
+        Integer test = 255;
+        byte testByte = test.byteValue();
+        log.info(ConversionUtils.byteToHex(testByte));
+    }
+
+    @Test
     void trimBytes() {
         byte[] byteArray = new byte[8];
         Arrays.fill(byteArray, (byte) -1);

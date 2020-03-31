@@ -36,6 +36,10 @@ public class ConversionUtils {
         return data;
     }
 
+    public static int byteToUnsignedInt(byte b) {
+        return (b & 0xFF);
+    }
+
     public static byte[] trimBytes(byte[] bytes, byte trimByte) {
         int index = bytes.length;
         while (bytes[index - 1] == trimByte) {

@@ -48,7 +48,7 @@ public class DobissRequestStatusRequest implements DobissRequest<List<DobissOutp
         List<DobissOutput> resultList = new ArrayList<>();
         for (int i = 0; i < result.length; i++) {
             if (result[i] != EMPTY_BYTE) {
-                resultList.add(new DobissOutput(i, result[i]));
+                resultList.add(new DobissOutput(i, ConversionUtils.byteToUnsignedInt(result[i])));
             }
         }
         return resultList;
